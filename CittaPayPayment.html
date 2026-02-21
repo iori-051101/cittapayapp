@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Citta Pay - Payment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .bg-custom-blue { background-color: #1E73BE; }
+        .bg-custom-gold { background-color: #DDC71F; }
+        .text-custom-gold { color: #DDC71F; }
+        html, body { height: 100%; margin: 0; overflow: hidden; }
+        body { font-family: 'Hiragino Sans', 'Meiryo', sans-serif; background-color: #f9fafb; }
+        .citta-symbol { position: relative; display: inline-block; font-weight: 900; }
+        .citta-symbol::after { content: "="; position: absolute; left: 50%; top: 48%; transform: translate(-50%, -50%) scaleX(1.2); font-size: 0.6em; opacity: 0.9; }
+        .key-active:active { background-color: #e5e7eb; transform: scale(0.95); }
+        .btn-pay {
+            background-color: #1E73BE;
+            border-bottom: 4px solid #165a96;
+            position: relative;
+        }
+        .shop-select-focus {
+            border: 3px solid #DDC71F !important;
+            background-color: #fffdf0;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center">
+    <main class="w-full max-w-sm h-screen p-5 flex flex-col justify-between">
+        <div class="flex flex-col items-center">
+            <div class="w-full flex justify-center items-center h-[15vh] min-h-[70px]">
+                <img src="cittapay.jpg" alt="Citta Pay Logo" class="max-h-full max-w-full object-contain">
+            </div>
+            <div class="w-full mt-2">
+                <label class="text-[10px] font-black text-custom-gold uppercase tracking-widest ml-1">支払い先店舗</label>
+                <div class="relative">
+                    <select id="shop-select" class="shop-select-focus w-full rounded-2xl px-4 py-4 font-bold text-gray-800 appearance-none shadow-md text-sm focus:outline-none">
+                        <option value="" disabled selected>支払い先を選択してください</option>
+                        <option value="ABC商店">ABC商店</option>
+                        <option value="いろは商店">いろは商店</option>
+                        <option value="Citta Cafe">Citta Cafe</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-custom-gold">
+                        <svg class="fill-current h-4 w-4" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex-1 flex flex-col justify-center items-end py-2">
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">支払い金額</p>
+            <div class="flex items-baseline space-x-2">
+                <span class="text-custom-gold text-2xl citta-symbol">C</span>
+                <span id="display-amount" class="text-5xl font-black text-gray-800 tracking-tighter">0</span>
+                <span class="text-gray-600 text-sm font-bold">チッタ</span>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-4 h-[35vh]">
+            <button class="key-active bg-white rounded-xl font-black text-xl text-gray-700 shadow-sm" onclick="inputNum('1')">1</button>
+            <button class="key-active bg-white rounded-xl font-black text-xl text-gray-700 shadow-sm" onclick="inputNum('2')">2</button>
+            <button class="key-active bg-white rounded-xl font-black text-xl text-gray-700 shadow-sm" onclick="inputNum('3')">3</button>
+            <button class="key-active bg-white rounded-xl font-black text-xl text-gray-700 shadow-sm" onclick="inputNum('4')">4</button>
+            <button class="key-active bg-white rounded-xl font-black text-xl text-gray-700 shadow-sm" onclick="inputNum('5')">5</button>
+            <button class="key-active bg-white rounded-xl font-black text-xl text-gray-700 shadow-sm" onclick="inputNum('6')">6</button>
+            <button class="key-active bg-white rounded-xl font-black text-xl text-gray-700 shadow-sm" onclick="inputNum('7')">7</button>
+            <button class="key-active bg-white rounded-xl font-black text-xl text-gray-700 shadow-sm" onclick="inputNum('8')">8</button>
+            <button class="key-active bg-white rounded-xl font-black text-xl text-gray-700 shadow-sm" onclick="inputNum('9')">9</button>
+            <button class="key-active bg-white rounded-xl font-black text-xl text-gray-700 shadow-sm" onclick="inputNum('00')">00</button>
+            <button class="key-active bg-white rounded-xl font-black text-xl text-gray-700 shadow-sm" onclick="inputNum('0')">0</button>
+            <button class="key-active bg-gray-100 rounded-xl font-bold text-sm text-red-500 shadow-sm" onclick="clearNum()">AC</button>
+        </div>
+        <div class="flex flex-col space-y-2 pb-2">
+            <button onclick="location.href='CittaPayTop.html'" class="text-gray-400 font-bold text-xs py-2">キャンセルして戻る</button>
+            <button id="pay-button" onclick="confirmPayment()" class="w-full bg-custom-blue active:scale-95 text-white font-bold py-4 rounded-2xl shadow-lg flex items-center justify-center">
+                <span class="text-lg font-black">支払い確定</span>
+            </button>
+        </div>
+    </main>
+    <script>
+        let amount = "0";
+        const display = document.getElementById('display-amount');
+        const shopSelect = document.getElementById('shop-select');
+        function inputNum(num) {
+            if (amount === "0") { if (num === "00" || num === "0") return; amount = num; }
+            else { if (amount.length < 8) amount += num; }
+            updateDisplay();
+        }
+        function clearNum() { amount = "0"; updateDisplay(); }
+        function updateDisplay() { display.innerText = Number(amount).toLocaleString(); }
+        function confirmPayment() {
+            const shop = shopSelect.value;
+            const amt = Number(amount);
+            if (!shop) { alert("支払い先の店舗を選択してください。"); return; }
+            if (amt <= 0) { alert("金額を入力してください。"); return; }
+            if (confirm(`${shop} で ${amt.toLocaleString()} チッタ 支払います。よろしいですか？`)) {
+                localStorage.setItem('lastShop', shop);
+                localStorage.setItem('lastAmount', amt);
+                location.href = 'CittaPayFinish.html';
+            }
+        }
+    </script>
+</body>
+</html>
