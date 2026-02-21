@@ -15,7 +15,8 @@
             border: 1px solid #fef3c7;
         }
         html, body { height: 100%; margin: 0; overflow: hidden; }
-        body { font-family: 'Hiragino Sans', 'Meiryo', sans-serif; background-color: #f9fafb; }
+        body {　padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); font-family: 'Hiragino Sans', 'Meiryo', sans-serif; background-color: #f9fafb; }
+        main { padding-left:1.5rem; padding-right: 1.5rem; }
         .citta-symbol { position: relative; display: inline-block; font-weight: 900; }
         .citta-symbol::after { content: "="; position: absolute; left: 50%; top: 48%; transform: translate(-50%, -50%) scaleX(1.3); font-size: 0.6em; opacity: 1; color: #DDC71F; }
     </style>
@@ -56,3 +57,4 @@
     </main>
 </body>
 </html>
+
